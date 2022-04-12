@@ -10,6 +10,10 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## R Markdown
+
+Group Members: Matt Schwab
+
+Repository Link: https://github.com/mschwab7/HW9.git
 ```{r}
 av <- read.csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/avengers/avengers.csv", stringsAsFactors = FALSE)
 av
