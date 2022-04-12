@@ -1,0 +1,96 @@
+---
+title: "Homework 9"
+author: "Matt Schwab"
+date: "4/7/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+```{r}
+av <- read.csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/avengers/avengers.csv", stringsAsFactors = FALSE)
+av
+head(av)
+View(av)
+library(tidyverse)
+av0 = av %>% filter(Name.Alias != "")
+dim(av0)
+(unique(av0$Name.Alias))
+counter = av0 %>% group_by(Name.Alias) %>% summarise(name.count = n()) %>%
+  arrange(desc(name.count))
+view(counter)
+av0 = av0 %>% filter(Name.Alias != "Vance Astrovik")
+av1 = av0 %>% gather(key = time, value = death, c(11, 13, 15, 17, 19)) %>% 
+  select(Name.Alias, time, death) %>%
+  mutate(time = parse_number(time))
+av2 = av0 %>% gather(key = time, value = return, c(12, 14, 16, 18, 20)) %>% 
+  select(Name.Alias, time, return) %>%
+  mutate(time = parse_number(time))
+av.neat = left_join(av1, av2, by = c("Name.Alias", "time"))
+view(av.neat)
+unique(av.neat$Name.Alias)
+```
+#Validation
+
+```{r}
+view(av.neat)
+death.count = av.neat %>% group_by(Name.Alias) %>% 
+  summarise(Number.of.Deaths = sum(as.numeric(death == "YES")), 
+            Number.of.Returns = sum(as.numeric(return == "YES"))) 
+view(death.count)
+dim(death.count)
+dim(death.count %>% filter(Number.of.Deaths >0))
+63/161
+
+```
+From the cleaned data, there are 161 total Avengers. 63 of them have died at least once. This is about 39.13%. We can say that approximately 40% of all members of the Avengers will die at least once.
+
+```{r}
+mcu9 = death.count %>% filter(Name.Alias %in% 
+                                 c("Anthony Edward Stark", 
+                                   "Robert Bruce Banner",
+                                   "Steven Rogers",
+                                   "Thor Odinson",
+                                   "Clinton Francis Barton",
+                                   "Natalia Alianovna Romanova",
+                                   "Wanda Maximoff",
+                                   "Pietro Maximoff",
+                                   "Victor Shade (alias)"))
+view(mcu9)
+```
+
+Of the 9 Avengers in the MCU movies, all of them have died at least once. Thor and Hawkeye have each died twice.
+
+```{r}
+Total.Deaths = sum(death.count$Number.of.Deaths)
+Total.Deaths
+Total.Returns = sum(death.count$Number.of.Returns)
+Total.Returns
+55/82
+```
+In the cleaned data, there are 82 total deaths. There were also 55 recoveries. This means that from any particular death, there is about a two-thirds chance that the Avenger would recover from it.
+
+```{r}
+sum(av0$Death1 == "YES")
+sum(av0$Return1 == "YES")
+sum(av0$Death2 == "YES")
+sum(av0$Return2 == "YES")
+sum(av0$Death3 == "YES")
+sum(av0$Return3 == "YES")
+44/63
+8/15
+```
+From the cleaned data, there is about a 69.84% chance that an Avenger returns from their first death(44/63). There is about a 53.33% chance that an Avenger returns from their second death(8/15). There is about a 50% chance than an Avenger returns from their third death(1/2).
+
+```{r}
+view(death.count %>% filter(Name.Alias == "Jocasta"))
+```
+
+```{r}
+(53/82)*12
+(53/27) * 12
+```
+When considering the Avengers'53 year timeline at the time of the writing, a death occurs about once every 7.75 months. A permanent death occurs about once every 23.56 months.
